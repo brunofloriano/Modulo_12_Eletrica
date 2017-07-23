@@ -1,7 +1,5 @@
-# Simple example of reading the MCP3008 analog input channels and printing
-# them all out.
-# Author: Tony DiCola
-# License: Public Domain
+# Simple example of reading the MCP3008 analog input channels and 
+# printing them all out. Author: Tony DiCola License: Public Domain
 import time
 
 # Import SPI library (for hardware SPI) and MCP3008 library.
@@ -20,22 +18,34 @@ import Adafruit_MCP3008
 SPI_PORT   = 0
 SPI_DEVICE = 0
 mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
-canal_leitura = 1
+canal_leitura = 5
 tensao = 0
 medicao = 0
 sumV = 0
-contador = 1
-offset = 512.0
+contador = 0
+offset = 512
 n = 0
+sensibilidade = 0.1
+acc = 0
 
 print('Reading MCP3008 values, press Ctrl-C to quit...')
 # Print nice channel column headers.
 print('| {0:>4} | {1:>4} | {2:>4} | {3:>4} | {4:>4} | {5:>4} | {6:>4} | {7:>4} |'.format(*range(8)))
 print('-' * 57)      
 
+while contador < 10:
+	acc += mcp.read_adc(canal_leitura)
+	contador = contador + 1
+offset = acc/10
+
+period = 1000000/60
+count = 1
+
 while True:
     amostras = 500
-    for n in range(0,amostras - 1):  
+    count = 1
+    t_start = time.time()*1000000
+    while ((time.time()*1000000 - t_start) < period):  
        # Read all the ADC channel values in a list.
        values = [0]*8
        for i in range(8):
@@ -46,11 +56,13 @@ while True:
        tensao = medicao - offset
        sqV = tensao*tensao
        sumV += sqV
-       Vrms = (sumV/amostras)**(0.5)
-       Irms = (2000.0/33.0)*(3.3/1024.0)*Vrms
-       # Print the ADC values.
-       #print('| {0:>4} | {1:>4} | {2:>4} | {3:>4} | {4:>4} | {5:>4} | {6:>4} | {7:>4} |'.format(*values))
-       # Pause for half a second.
+       count = count + 1
+    Vrms = (sumV/count)**(0.5)
+    Irms = (5.0/1023)*Vrms/sensibilidade
+    # Print the ADC values.
+    #print('| {0:>4} | {1:>4} | {2:>4} | {3:>4} | {4:>4} | {5:>4} | {6:>4} | {7:>4} |'.format(*values))
+    # Pause for half a second.
     sumV = 0
+    count = 0
     print Irms
     time.sleep(0.0002)  
