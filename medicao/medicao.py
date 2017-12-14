@@ -24,6 +24,7 @@ canal_leitura = 1
 tensao = 0
 sumV = 0
 contador = 1
+offset = 512
 
 print('Reading MCP3008 values, press Ctrl-C to quit...')
 # Print nice channel column headers.
@@ -36,10 +37,12 @@ while True:
     for i in range(8):
         # The read_adc function will get the value of the specified channel (0-7).
         values[i] = mcp.read_adc(i)
-    tensao = values[canal_leitura]*3.3/1023
+    tensao = values[canal_leitura]
+    tensao = tensao - offset
     sqV = tensao*tensao
     sumV += sqV
-    Irms = (2000/33)*3.3*(sumV/contador)**(0.5)/2/1000 
+    Vrms = (sumV/contador)**(0.5)
+    Irms = (2000/33)*(3.3/1024)*Vrms
     print Irms
     # Print the ADC values.
     #print('| {0:>4} | {1:>4} | {2:>4} | {3:>4} | {4:>4} | {5:>4} | {6:>4} | {7:>4} |'.format(*values))

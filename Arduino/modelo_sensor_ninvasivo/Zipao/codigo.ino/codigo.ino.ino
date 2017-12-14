@@ -24,10 +24,11 @@ void setup()
 void loop()
 {
   //Calcula a corrente
+  int sample = analogRead(pino_sct);
   double Irms = emon1.calcIrms(1480);
   //Mostra o valor da corrente no serial monitor e display
   Serial.print("Corrente : ");
-  Serial.println(Irms); // Irms
+  Serial.println(sample); // Irms
   delay(200);
 }
 
