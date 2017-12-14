@@ -30,8 +30,9 @@ print('Reading MCP3008 values, press Ctrl-C to quit...')
 # Print nice channel column headers.
 print('| {0:>4} | {1:>4} | {2:>4} | {3:>4} | {4:>4} | {5:>4} | {6:>4} | {7:>4} |'.format(*range(8)))
 print('-' * 57)
-# Main program loop.
-while True:
+
+def medicao(amostras):
+  while n in range(0,amostras-1)  
     # Read all the ADC channel values in a list.
     values = [0]*8
     for i in range(8):
@@ -43,9 +44,15 @@ while True:
     sumV += sqV
     Vrms = (sumV/contador)**(0.5)
     Irms = (2000/33)*(3.3/1024)*Vrms
-    print Irms
+    return Irms
     # Print the ADC values.
     #print('| {0:>4} | {1:>4} | {2:>4} | {3:>4} | {4:>4} | {5:>4} | {6:>4} | {7:>4} |'.format(*values))
     # Pause for half a second.
-    contador += 1
-    time.sleep(0.5)
+
+    
+
+# Main program loop.
+while True:
+    I = medicao(1480)
+    print I
+    time.sleep(0.2)
