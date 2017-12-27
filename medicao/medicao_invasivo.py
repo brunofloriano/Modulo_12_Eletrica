@@ -46,13 +46,35 @@ offset = acc/10
 #count = 0
 tempo_intervalo = 500
 contador_amostra = 0
-dados_consumo={
+dados_consumo = {
 	'tensao': [],
 	'corrente': [],
 	'data_medicao': [],
-	'id_boltz': 1,
+	'id_boltz': "1",
 	'num_seq': -1
 }
+
+def postData(dados_consumo):
+	email = "maximillianfx@gmail.com"
+	senha = "220494max"
+	cabecalho = {'from': email, 'password': senha}
+	URL = 'http://192.168.42.59:8000/v1/autorizar/'
+	URL_consumo = 'http://192.168.42.59:8000/v1/consumo/'
+	medicoes_url = '/medicoes/'
+	response_auth = requests.get(URL, headers=cabecalho)
+	token = str(response_auth.headers['app_token'])
+	print token
+	cabecalho2 = {'authorization': "token " + token}
+	URL_final = URL_consumo + "1" + medicoes_url
+	print(URL_final)
+	print(dados_consumo)
+	response_post =  requests.post(URL_final,headers=cabecalho2,data=dados_consumo)
+	dados_consumo['tensao'] = []
+	dados_consumo['corrente'] = []
+	dados_consumo['data_medicao'] = []
+	if response_post.status_code != 201:
+		print (response_post.status_code)
+		print ("Fallha")
 
 contador_mult = 1
 ativo = False
@@ -96,40 +118,27 @@ while True:
     if ativo:
     	contador_amostra += 1
   	dados_consumo['tensao'].append(220)
-	dados_consumo['corrente'].append(Irms)
+	dados_consumo['corrente'].append(float("{:.2f}".format(Irms)))
 	dados_consumo['data_medicao'].append(str(datetime.datetime.now()))
     	if contador_amostra%10 == 0:
 		print dados_consumo
-		dados_consumo['tensao'] = []
-		dados_consumo['corrente'] = []
-		dados_consumo['data_medicao'] = []
+		#dados_consumo['tensao'] = []
+		#dados_consumo['corrente'] = []
+		#dados_consumo['data_medicao'] = []
 		contador_mult += 1
-		email = "maximillianfx@gmail.com"
-		senha = "220494max"
-		cabecalho = {'from': email, 'password': senha}
-		URL = 'http://192.168.42.59:8000/v1/autorizar'
-		URL_consumo = 'http://192.168.42.59:8000/v1/consumo/'
-		medicoes_url = '/medicoes/'
-		response_auth = requests.get(URL, headers=cabecalho)
-		token = str(response_auth.headers['app_token'])
-		print token
-		cabecalho2 = {'authorization': "token " + token}
-		URL_final = URL_consumo + "1" + medicoes_url
-		response_post =  requests.post(URL_final,headers=cabecalho2,data=dados_consumo)
-		if response_post.status_code != 201:
-			print ("Fallha")
+		postData(dados_consumo)
     else:
-	print ("Oi")
 	if end:
-		print ("Ola")
+		print("ContMult " + str(contador_mult))
+		print("Contador Amostra: " + str(contador_amostra))
 		restantes = (10*contador_mult) - contador_amostra
-		for m in range(restantes):
+		for m in range (restantes):
 			dados_consumo['tensao'].append(220)
-			dados_consumo['corrente'].append(0)
+			dados_consumo['corrente'].append(float("{:.2f}".format(0)))
 			dados_consumo['data_medicao'].append(str(datetime.datetime.now()))
 			contador_amostra += 1
 			end = False
+		contador_mult += 1
 		print(dados_consumo)
-		#print Irms
-    		#print contador
-    		#time.sleep(0.0002)  
+		print(contador_amostra)
+		postData(dados_consumo)
